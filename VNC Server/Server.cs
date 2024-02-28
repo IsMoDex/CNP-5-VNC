@@ -134,20 +134,34 @@ namespace VNC_Server
             }
             catch (System.IO.IOException ex) when (ex.InnerException is SocketException se && se.ErrorCode == 10060)
             {
-                Console.WriteLine("Ошибка связи с клиентом: Клиент долго не отвечал.");
+                string errorMessage = "Ошибка связи с клиентом: Клиент долго не отвечал.";
+
+                MessageBox.Show(errorMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(errorMessage + "\n" + ex.Message);
             }
             catch (System.IO.IOException ex) when (ex.InnerException is SocketException se && se.SocketErrorCode == SocketError.ConnectionReset)
             {
-                Console.WriteLine("Ошибка связи с клиентом: Клиент принудительно разорвал соединение.");
+                string errorMessage = "Ошибка связи с клиентом: Клиент принудительно разорвал соединение.";
+
+                MessageBox.Show(errorMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(errorMessage + "\n" + ex.Message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ошибка чтения данных: {0}", ex.Message);
+                string errorMessage = "Ошибка чтения данных: " + ex.Message;
+
+                MessageBox.Show(errorMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(errorMessage);
             }
             finally
             {
+                string errorMessage = $"Соединение с клиентом {endPointClient.Address}:{endPointClient.Port} было разорвано!";
+
                 client.Close();
-                Console.WriteLine("Соединение с клиентом {0}:{1} было разорвано!", endPointClient.Address, endPointClient.Port);
+
+                MessageBox.Show(errorMessage, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(errorMessage);
+
                 Interlocked.Decrement(ref _clientCount);
             }
 
