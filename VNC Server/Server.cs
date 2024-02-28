@@ -175,8 +175,8 @@ namespace VNC_Server
 
             // Разбор сообщения
             string[] parts = message.Split(',');
-            bool leftButtonDown = Convert.ToBoolean(parts[0]);
-            bool rightButtonDown = Convert.ToBoolean(parts[1]);
+            bool leftButtonDown = parts[0] == "True";
+            bool rightButtonDown = parts[1] == "True";
 
             Action ResetClickMouseOperation = () =>
             {
@@ -216,23 +216,10 @@ namespace VNC_Server
 
             // Разбор сообщения
             string[] parts = message.Split(',');
-            //bool leftButtonDown = Convert.ToBoolean(parts[0]);
-            //bool rightButtonDown = Convert.ToBoolean(parts[1]);
             int mouseX = Convert.ToInt32($"{parts[0]}");
             int mouseY = Convert.ToInt32($"{parts[2]}");
 
-            //if (leftButtonDown)
-            //    simulator.Mouse.LeftButtonDown();
-            //else
-            //    simulator.Mouse.LeftButtonUp();
-
-            //if (rightButtonDown)
-            //    simulator.Mouse.RightButtonDown();
-            //else
-            //    simulator.Mouse.RightButtonUp();
-
             MouseOperator.SetCursorPos(mouseX, mouseY);
-            //simulator.Mouse.MoveMouseToPositionOnVirtualDesktop(mouseX, mouseY);
         }
 
         private string ReadMessageStrigFromClient(NetworkStream stream, int BufferSize)

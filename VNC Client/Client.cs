@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -62,6 +63,8 @@ namespace VNC_Client
 
         private void HandleOperation()
         {
+            int CountTimeOut = 0;
+
             while(_dispouse == 0 && HandleContinue)
             {
                 if (StackRequests.Count == 0)
@@ -74,7 +77,19 @@ namespace VNC_Client
                 switch (command)
                 {
                     case "FramebufferUpdateRequest":
-                        UpdateFrame_Request();
+                        try
+                        {
+                            UpdateFrame_Request();
+                        }
+                        catch (IOException ex) when (ex.InnerException is SocketException socketException && socketException.SocketErrorCode == SocketError.TimedOut)
+                        {
+                            CountTimeOut++;
+                            // Обработка ошибки таймаута
+                            Console.WriteLine("Произошел таймаут при чтении/записи данных из/в NetworkStream.");
+
+                            if (CountTimeOut > 5)
+                                return;
+                        }
                         break;
 
                     case "MouseEventMoveUpdateRequest":
@@ -114,9 +129,12 @@ namespace VNC_Client
             client.Close();
         }
 
+        string OldRequest = string.Empty;
+
         private BitmapImage ReceiveImage()
         {
             NetworkStream stream = client.GetStream();
+            stream.ReadTimeout = 1500;
 
             // Читаем размер изображения из потока
             byte[] sizeData = new byte[4];

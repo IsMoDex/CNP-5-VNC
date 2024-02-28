@@ -173,26 +173,35 @@ namespace VNC_Client
 
         }
 
-        static object lockObject = new object();
 
+        private bool isProcessing = false; // Флаг, указывающий, выполняется ли метод в данный момент
         private async void ImagePage_MouseMove(object sender, MouseEventArgs e)
         {
-            Point positionRelativeToImage = e.GetPosition(ImagePage); // Получаем координаты относительно изображения
+            if (!isProcessing) // Проверяем, выполняется ли метод уже
+            {
+                isProcessing = true; // Устанавливаем флаг, что метод начал выполнение
 
-            //Размер рабочего стола
-            double screenWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;//WindowScreenInfo.GetScreenWidth;
-            double screenHeight = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
+                Point positionRelativeToImage = e.GetPosition(ImagePage); // Получаем координаты относительно изображения
 
-            // Позиция мыши относительно изображения
-            double xRelativeToImage = positionRelativeToImage.X;
-            double yRelativeToImage = positionRelativeToImage.Y;
+                //Размер рабочего стола
+                double screenWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
+                double screenHeight = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
 
-            //Масштаб, во сколько раз меньше изображение
-            double ScaleWidth = screenWidth / ImagePage.ActualWidth; //Получаем текущий размер изображения
-            double ScaleHeight = screenHeight / ImagePage.ActualHeight;
+                // Позиция мыши относительно изображения
+                double xRelativeToImage = positionRelativeToImage.X;
+                double yRelativeToImage = positionRelativeToImage.Y;
 
-            client.SendMouseMoveParamentries(new Point(xRelativeToImage * ScaleWidth, yRelativeToImage * ScaleHeight));
-            await Task.Delay(TimeSpan.FromSeconds(0.2));
+                //Масштаб, во сколько раз меньше изображение
+                double ScaleWidth = screenWidth / ImagePage.ActualWidth;
+                double ScaleHeight = screenHeight / ImagePage.ActualHeight;
+
+                client.SendMouseMoveParamentries(new Point(xRelativeToImage * ScaleWidth, yRelativeToImage * ScaleHeight));
+
+                // Добавляем задержку в 0.25 секунд
+                await Task.Delay(250);
+
+                isProcessing = false; // Устанавливаем флаг, что метод завершил выполнение
+            }
         }
 
         private void ImagePage_MouseDown(object sender, MouseButtonEventArgs e) => MouseUpDown(e);
