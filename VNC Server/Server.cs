@@ -121,7 +121,7 @@ namespace VNC_Server
                             break;
 
                         case "MouseEventMoveUpdateRequest":
-                            //MouseEventMoveUpdateRequest(client.GetStream());
+                            MouseEventMoveUpdateRequest(client.GetStream());
                             break;
 
                         case "MouseEventButtonUpdateRequest":
