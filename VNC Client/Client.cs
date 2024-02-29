@@ -106,10 +106,11 @@ namespace VNC_Client
                     if (CountTimeOut > 10)
                         return;
                 }
+                finally
+                {
+                    StackRequests.Remove(command);
+                }
 
-
-
-                StackRequests.Remove(command);
             }
 
             Console.WriteLine();
