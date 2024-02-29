@@ -122,10 +122,12 @@ namespace VNC_Server
 
                         case "MouseEventMoveUpdateRequest":
                             MouseEventMoveUpdateRequest(client.GetStream());
+                            SendMessagoForClient("yes", client.GetStream());
                             break;
 
                         case "MouseEventButtonUpdateRequest":
                             MouseEventClickUpdateRequest(client.GetStream());
+                            SendMessagoForClient("yes", client.GetStream());
                             break;
                     }
 
@@ -242,6 +244,13 @@ namespace VNC_Server
             while (stream.DataAvailable);
 
             return builder.ToString();
+        }
+
+        private void SendMessagoForClient(string message, NetworkStream clientStream)
+        {
+            byte[] data = Encoding.Unicode.GetBytes(message);
+
+            clientStream.Write(data, 0, data.Length);
         }
 
         private BitmapImage CaptureScreen()

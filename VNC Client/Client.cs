@@ -182,6 +182,19 @@ namespace VNC_Client
             GetImage = receivedImage;
         }
 
+        private string GetMessageForServer()
+        {
+            NetworkStream stream = client.GetStream();
+
+            byte[] buffer = new byte[1024];
+
+            stream.Read(buffer, 0, buffer.Length);
+
+            string message = Encoding.Unicode.GetString(buffer);
+
+            return message;
+        }
+
         private void SendMessageToServer(string message)
         {
             byte[] data = Encoding.Unicode.GetBytes(message);
@@ -208,6 +221,9 @@ namespace VNC_Client
             // Отправка сообщения на сервер
             SendMessageToServer("MouseEventMoveUpdateRequest"); ///Request
             SendMessageToServer(message);
+
+            if (GetMessageForServer() != "yes")
+                throw new ArgumentException("Ожидаемый ответ от сервера не получен!");
         }
 
         public void SendMouseButtonParamentries(bool leftButtonDown, bool rightButtonDown)
@@ -223,6 +239,9 @@ namespace VNC_Client
             // Отправка сообщения на сервер
             SendMessageToServer("MouseEventButtonUpdateRequest"); ///Request
             SendMessageToServer(message);
+
+            if (GetMessageForServer() != "yes")
+                throw new ArgumentException("Ожидаемый ответ от сервера не получен!");
         }
 
         private void AddInStackRequest(string request) => StackRequests.Add(request);
