@@ -186,23 +186,29 @@ namespace VNC_Server
 
             Action ResetClickMouseOperation = () =>
             {
-                if (leftButtonDown && Mouse.LeftButton != MouseButtonState.Pressed)
-                {
-                    simulator.Mouse.LeftButtonDown();
-                }
-                else if (!leftButtonDown && Mouse.LeftButton == MouseButtonState.Pressed)
-                {
-                    simulator.Mouse.LeftButtonUp();
-                }
+                //if (leftButtonDown && Mouse.LeftButton != MouseButtonState.Pressed)
+                //{
+                //    simulator.Mouse.LeftButtonDown();
+                //}
+                //else if (!leftButtonDown && Mouse.LeftButton == MouseButtonState.Pressed)
+                //{
+                //    simulator.Mouse.LeftButtonUp();
+                //}
 
-                if (rightButtonDown && Mouse.RightButton != MouseButtonState.Pressed)
-                {
-                    simulator.Mouse.RightButtonDown();
-                }
-                else if (!rightButtonDown && Mouse.RightButton == MouseButtonState.Pressed)
-                {
-                    simulator.Mouse.RightButtonUp();
-                }
+                //if (rightButtonDown && Mouse.RightButton != MouseButtonState.Pressed)
+                //{
+                //    simulator.Mouse.RightButtonDown();
+                //}
+                //else if (!rightButtonDown && Mouse.RightButton == MouseButtonState.Pressed)
+                //{
+                //    simulator.Mouse.RightButtonUp();
+                //}
+
+                if (leftButtonDown)
+                    simulator.Mouse.LeftButtonClick();
+
+                if (rightButtonDown)
+                    simulator.Mouse.RightButtonClick();
             };
 
             if (App.Current.Dispatcher.CheckAccess())

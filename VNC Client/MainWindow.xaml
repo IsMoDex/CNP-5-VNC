@@ -9,7 +9,7 @@
     <Grid>
         <TextBox x:Name="ConnectionDataTextBox" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="localhost:12346" VerticalAlignment="Top" Width="187" FontFamily="Times New Roman" FontSize="14"/>
         <Button x:Name="ConnectButton" Content="Connect" HorizontalAlignment="Left" Margin="202,9,0,0" VerticalAlignment="Top" Width="60" FontSize="14" FontFamily="Times New Roman" Click="ConnectButton_Click"/>
-        <Image x:Name="ImagePage" RenderTransformOrigin="0.5,0.5" Margin="0,30,0,0" MouseMove="ImagePage_MouseMove" MouseDown="ImagePage_MouseDown" MouseUp="ImagePage_MouseUp">
+        <Image x:Name="ImagePage" RenderTransformOrigin="0.5,0.5" Margin="0,30,0,0" MouseMove="ImagePage_MouseMove" MouseDown="ImagePage_MouseDown" > <!--MouseUp="ImagePage_MouseUp"-->
             <Image.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>

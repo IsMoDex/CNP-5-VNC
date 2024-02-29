@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media.Imaging;
@@ -71,6 +72,7 @@ namespace VNC_Client
                     continue;
 
                 var command = StackRequests.First();
+                var value = string.Empty;
 
                 Console.WriteLine("Количество запросов: " + StackRequests.Count);
 
@@ -83,13 +85,15 @@ namespace VNC_Client
                             break;
 
                         case "MouseEventMoveUpdateRequest":
-                            SendMouseMoveParamentries_Request(StackRequests[1]);
+                            value = StackRequests[1];
                             StackRequests.RemoveAt(1);
+                            SendMouseMoveParamentries_Request(value);
                             break;
 
                         case "MouseEventButtonUpdateRequest":
-                            SendMouseButtonParamentries_Request(StackRequests[1]);
-                            StackRequests.RemoveAt(1);
+                            value = StackRequests[1];
+                            StackRequests.RemoveAt(1); 
+                            SendMouseButtonParamentries_Request(value);
                             break;
 
                         default: return;
@@ -105,6 +109,14 @@ namespace VNC_Client
 
                     if (CountTimeOut > 10)
                         return;
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine("Error Request: " + command + "\n" + ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.Forms.MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 finally
                 {
@@ -182,17 +194,23 @@ namespace VNC_Client
             GetImage = receivedImage;
         }
 
-        private string GetMessageForServer()
+        private string GetMessageForServer(int TimeOut = 60)
         {
             NetworkStream stream = client.GetStream();
+            Thread.Sleep(TimeOut);
 
-            byte[] buffer = new byte[1024];
+            byte[] data = new byte[1024];
 
-            stream.Read(buffer, 0, buffer.Length);
+            var builder = new StringBuilder();
 
-            string message = Encoding.Unicode.GetString(buffer);
+            while(stream.DataAvailable)
+            {
+                int bytes = stream.Read(data, 0, data.Length);
 
-            return message;
+                builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+            }
+
+            return builder.ToString();
         }
 
         private void SendMessageToServer(string message)
@@ -222,7 +240,8 @@ namespace VNC_Client
             SendMessageToServer("MouseEventMoveUpdateRequest"); ///Request
             SendMessageToServer(message);
 
-            if (GetMessageForServer() != "yes")
+            string serverMessage = GetMessageForServer();
+            if (serverMessage != "yes")
                 throw new ArgumentException("Ожидаемый ответ от сервера не получен!");
         }
 
@@ -240,7 +259,7 @@ namespace VNC_Client
             SendMessageToServer("MouseEventButtonUpdateRequest"); ///Request
             SendMessageToServer(message);
 
-            if (GetMessageForServer() != "yes")
+            if (GetMessageForServer(150) != "yes")
                 throw new ArgumentException("Ожидаемый ответ от сервера не получен!");
         }
 
