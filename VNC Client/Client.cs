@@ -74,36 +74,40 @@ namespace VNC_Client
 
                 Console.WriteLine("Количество запросов: " + StackRequests.Count);
 
-                switch (command)
+                try
                 {
-                    case "FramebufferUpdateRequest":
-                        try
-                        {
+                    switch (command)
+                    {
+                        case "FramebufferUpdateRequest":
                             UpdateFrame_Request();
-                        }
-                        catch (IOException ex) when (ex.InnerException is SocketException socketException && socketException.SocketErrorCode == SocketError.TimedOut)
-                        {
-                            CountTimeOut++;
-                            // Обработка ошибки таймаута
-                            Console.WriteLine("Произошел таймаут при чтении/записи данных из/в NetworkStream.");
+                            break;
 
-                            if (CountTimeOut > 5)
-                                return;
-                        }
-                        break;
+                        case "MouseEventMoveUpdateRequest":
+                            SendMouseMoveParamentries_Request(StackRequests[1]);
+                            StackRequests.RemoveAt(1);
+                            break;
 
-                    case "MouseEventMoveUpdateRequest":
-                        SendMouseMoveParamentries_Request(StackRequests[1]);
-                        StackRequests.RemoveAt(1);
-                        break;
+                        case "MouseEventButtonUpdateRequest":
+                            SendMouseButtonParamentries_Request(StackRequests[1]);
+                            StackRequests.RemoveAt(1);
+                            break;
 
-                    case "MouseEventButtonUpdateRequest":
-                        SendMouseButtonParamentries_Request(StackRequests[1]);
-                        StackRequests.RemoveAt(1);
-                        break;
+                        default: return;
+                    }
 
-                    default: return;
+                    CountTimeOut = 0;
                 }
+                catch (IOException ex) when (ex.InnerException is SocketException socketException && socketException.SocketErrorCode == SocketError.TimedOut)
+                {
+                    CountTimeOut++;
+                    // Обработка ошибки таймаута
+                    Console.WriteLine($"Произошел таймаут №{CountTimeOut} при чтении/записи данных из/в NetworkStream.");
+
+                    if (CountTimeOut > 10)
+                        return;
+                }
+
+
 
                 StackRequests.Remove(command);
             }

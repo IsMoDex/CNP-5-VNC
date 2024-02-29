@@ -175,6 +175,10 @@ namespace VNC_Server
 
             // Разбор сообщения
             string[] parts = message.Split(',');
+
+            if (parts.Length > 2)
+                throw new ArgumentException("Количество элементов больше ожидаемого!");
+
             bool leftButtonDown = parts[0] == "True";
             bool rightButtonDown = parts[1] == "True";
 
