@@ -44,11 +44,11 @@ namespace VNC_Server
             try
             {
                 IPAddress ip = IPAddress.Any;
-                int port = 12346;
+                int port = 9000;
 
                 server = new Server(ip, port);
 
-                Label_IPPort.Content = $"{port}";
+                Label_IPPort.Text = $"{port}";
 
                 // Создаем экземпляр сервера и запускаем его
                 server.Start();

@@ -26,7 +26,7 @@ namespace VNC_Server
 
         InputSimulator simulator;
 
-        public Server() : this(IPAddress.Any, 12346)
+        public Server() : this(IPAddress.Any, 9000)
         {
 
         }
@@ -39,8 +39,16 @@ namespace VNC_Server
 
         public async void Start()
         {
-            listener.Start();
-            Console.WriteLine("Сервер запущен. Ожидание подключений...");
+            try
+            {
+                listener.Start();
+                Console.WriteLine("Сервер запущен. Ожидание подключений...");
+            }
+            catch (SocketException ex)
+            {
+                Console.WriteLine("Не удалось запустить сервер: " + ex.Message);
+                return;
+            }
 
             await Task.Run(() =>
             {
@@ -57,8 +65,8 @@ namespace VNC_Server
                     }
                     catch (SocketException ex)
                     {
-                        Console.WriteLine(ex.ToString());
-                        return;
+                        Console.WriteLine("Ошибка подключения клиента: " + ex.Message);
+                        continue;
                     }
 
                     //// Получаем изображение
@@ -129,6 +137,11 @@ namespace VNC_Server
                             MouseEventClickUpdateRequest(client.GetStream());
                             SendMessagoForClient("yes", client.GetStream());
                             break;
+
+                        case "MouseEventWheelUpdateRequest":
+                            MouseEventWheelUpdateRequest(client.GetStream());
+                            SendMessagoForClient("yes", client.GetStream());
+                            break;
                     }
 
                 }
@@ -178,11 +191,14 @@ namespace VNC_Server
             // Разбор сообщения
             string[] parts = message.Split(',');
 
-            if (parts.Length > 2)
+            if (parts.Length != 5)
                 throw new ArgumentException("Количество элементов больше ожидаемого!");
 
             bool leftButtonDown = parts[0] == "True";
             bool rightButtonDown = parts[1] == "True";
+            bool middleButtonDown = parts[2] == "True";
+            bool xButton1Down = parts[3] == "True";
+            bool xButton2Down = parts[4] == "True";
 
             Action ResetClickMouseOperation = () =>
             {
@@ -209,6 +225,15 @@ namespace VNC_Server
 
                 if (rightButtonDown)
                     simulator.Mouse.RightButtonClick();
+
+                if (middleButtonDown)
+                    MouseOperator.MiddleButtonClick();
+
+                if (xButton1Down)
+                    simulator.Mouse.XButtonClick(1);
+
+                if (xButton2Down)
+                    simulator.Mouse.XButtonClick(2);
             };
 
             if (App.Current.Dispatcher.CheckAccess())
@@ -232,6 +257,25 @@ namespace VNC_Server
             int mouseY = Convert.ToInt32(parts[1]);
 
             MouseOperator.SetCursorPos(mouseX, mouseY);
+        }
+
+        private void MouseEventWheelUpdateRequest(NetworkStream stream)
+        {
+            string message = ReadMessageStrigFromClient(stream, SIZE_BUFFER);
+
+            if (!int.TryParse(message, out int delta))
+                return;
+
+            Action wheelAction = () => simulator.Mouse.VerticalScroll(delta / 120);
+
+            if (App.Current.Dispatcher.CheckAccess())
+            {
+                wheelAction();
+            }
+            else
+            {
+                App.Current.Dispatcher.Invoke(wheelAction);
+            }
         }
 
         private string ReadMessageStrigFromClient(NetworkStream stream, int BufferSize)
