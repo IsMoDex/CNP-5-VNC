@@ -20,7 +20,7 @@ namespace VNC_Client
     {
         TcpClient client;
 
-        int _dispouse = 0;
+        int _disposed = 0;
         bool HandleContinue = false;
 
         List<string> StackRequests = new List<string>();
@@ -66,7 +66,7 @@ namespace VNC_Client
         {
             int CountTimeOut = 0;
 
-            while(_dispouse == 0 && HandleContinue)
+            while(_disposed == 0 && HandleContinue)
             {
                 if (StackRequests.Count == 0)
                     continue;
@@ -159,7 +159,6 @@ namespace VNC_Client
             client.Close();
         }
 
-        string OldRequest = string.Empty;
 
         private BitmapImage ReceiveImage()
         {
@@ -300,6 +299,6 @@ namespace VNC_Client
 
         private void AddInStackRequest(string request) => StackRequests.Add(request);
 
-        ~Client() => _dispouse = 1;
+        ~Client() => _disposed = 1;
     }
 }

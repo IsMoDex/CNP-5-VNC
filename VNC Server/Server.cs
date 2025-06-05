@@ -117,7 +117,7 @@ namespace VNC_Server
                     //    builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
                     //} while (stream.DataAvailable);
 
-                    string message = ReadMessageStrigFromClient(stream, SIZE_BUFFER);
+                    string message = ReadMessageStringFromClient(stream);
 
                     switch (message/*builder.ToString()*/)
                     {
@@ -130,17 +130,17 @@ namespace VNC_Server
 
                         case "MouseEventMoveUpdateRequest":
                             MouseEventMoveUpdateRequest(client.GetStream());
-                            SendMessagoForClient("yes", client.GetStream());
+                            SendMessageToClient("yes", client.GetStream());
                             break;
 
                         case "MouseEventButtonUpdateRequest":
                             MouseEventClickUpdateRequest(client.GetStream());
-                            SendMessagoForClient("yes", client.GetStream());
+                            SendMessageToClient("yes", client.GetStream());
                             break;
 
                         case "MouseEventWheelUpdateRequest":
                             MouseEventWheelUpdateRequest(client.GetStream());
-                            SendMessagoForClient("yes", client.GetStream());
+                            SendMessageToClient("yes", client.GetStream());
                             break;
                     }
 
@@ -186,7 +186,7 @@ namespace VNC_Server
 
         private void MouseEventClickUpdateRequest(NetworkStream stream)
         {
-            string message = ReadMessageStrigFromClient(stream, SIZE_BUFFER);
+            string message = ReadMessageStringFromClient(stream);
 
             // Разбор сообщения
             string[] parts = message.Split(',');
@@ -249,7 +249,7 @@ namespace VNC_Server
 
         private void MouseEventMoveUpdateRequest(NetworkStream stream)
         {
-            string message = ReadMessageStrigFromClient(stream, SIZE_BUFFER);
+            string message = ReadMessageStringFromClient(stream);
 
             // Разбор сообщения
             string[] parts = message.Split(',');
@@ -261,7 +261,7 @@ namespace VNC_Server
 
         private void MouseEventWheelUpdateRequest(NetworkStream stream)
         {
-            string message = ReadMessageStrigFromClient(stream, SIZE_BUFFER);
+            string message = ReadMessageStringFromClient(stream);
 
             if (!int.TryParse(message, out int delta))
                 return;
@@ -278,7 +278,7 @@ namespace VNC_Server
             }
         }
 
-        private string ReadMessageStrigFromClient(NetworkStream stream, int BufferSize)
+        private string ReadMessageStringFromClient(NetworkStream stream)
         {
             byte[] data = new byte[SIZE_BUFFER];
             int bytes = 0;
@@ -296,7 +296,7 @@ namespace VNC_Server
             return builder.ToString();
         }
 
-        private void SendMessagoForClient(string message, NetworkStream clientStream)
+        private void SendMessageToClient(string message, NetworkStream clientStream)
         {
             byte[] data = Encoding.Unicode.GetBytes(message);
 

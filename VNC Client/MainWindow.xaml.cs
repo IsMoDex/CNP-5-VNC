@@ -28,7 +28,7 @@ namespace VNC_Client
     public partial class MainWindow : Window
     {
         Client client = new Client();
-        object locker = new object(); //locker
+        object locker = new object();
         int _disposed = 0;
         CancellationTokenSource updateTokenSource;
 
@@ -70,33 +70,16 @@ namespace VNC_Client
 
             do
             {
-                //client.UpdateFrame();
-                //await Task.Delay(TimeSpan.FromMilliseconds(700)); // Ожидаем задержку
-                //ImagePage.Source = client.GetImage;
-
-                //await Task.Run(() =>
-                //{
-                //    client.UpdateFrame();
-                //    Task.Delay(TimeSpan.FromMilliseconds(100)).Wait(); // Ожидаем задержку
-                //});
-
-                //Application.Current.Dispatcher.Invoke(() =>
-                //{
-                //    ImagePage.Source = client.GetImage;
-                //});
-
                 BitmapImage receivedImage = await Task.Run(() =>
                 {
                     client.UpdateFrame();
                     return client.GetImage;
                 });
 
-                BitmapImage clonedImage = CloneBitmapImage(receivedImage); // Клонируем изображение
-
+                BitmapImage clonedImage = CloneBitmapImage(receivedImage);
                 ImagePage.Source = clonedImage;
 
-                await Task.Delay(TimeSpan.FromMilliseconds(100)); // Ожидаем задержку
-
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
 
             } while (_disposed == 0);
 
