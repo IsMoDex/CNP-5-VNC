@@ -134,7 +134,14 @@ namespace VNC_Client
             Port = port;
 
             // Подключаемся к серверу
-            client.Connect(serverIp, port);
+            try
+            {
+                client.Connect(serverIp, port);
+            }
+            catch (SocketException ex)
+            {
+                throw new InvalidOperationException("Не удалось подключиться к серверу", ex);
+            }
             StartHandle();
             Console.WriteLine("Подключено к серверу");
         }
@@ -222,8 +229,15 @@ namespace VNC_Client
 
         private void SendMessageToServer(byte[] data)
         {
-            NetworkStream stream = client.GetStream();
-            stream.Write(data, 0, data.Length);
+            try
+            {
+                NetworkStream stream = client.GetStream();
+                stream.Write(data, 0, data.Length);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException("Ошибка отправки данных на сервер: " + ex.Message, ex);
+            }
         }
 
         public void SendMouseMoveParamentries(Point MousePosition)

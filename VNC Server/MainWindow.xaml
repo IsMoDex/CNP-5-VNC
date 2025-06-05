@@ -6,9 +6,10 @@
         xmlns:local="clr-namespace:VNC_Server"
         mc:Ignorable="d"
         Title="Server" Height="450" Width="800">
-    <Grid>
-        <Label Content="Текущий Port" HorizontalAlignment="Left" Margin="65,65,0,0" VerticalAlignment="Top"/>
-        <Label Content="Port" x:Name="Label_IPPort" HorizontalAlignment="Left" Margin="65,96,0,0" VerticalAlignment="Top"/>
-
+    <Grid Margin="10">
+        <StackPanel>
+            <TextBlock Text="Текущий порт:" FontWeight="Bold"/>
+            <TextBlock x:Name="Label_IPPort" Text="Port" Margin="0,5,0,0"/>
+        </StackPanel>
     </Grid>
 </Window>
