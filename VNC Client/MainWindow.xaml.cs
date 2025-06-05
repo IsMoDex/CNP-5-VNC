@@ -30,6 +30,7 @@ namespace VNC_Client
         Client client = new Client();
         object locker = new object(); //locker
         int _disposed = 0;
+        CancellationTokenSource updateTokenSource;
 
         public MainWindow()
         {
@@ -41,6 +42,7 @@ namespace VNC_Client
         {
             try
             {
+                updateTokenSource?.Cancel();
                 client.CloseClient();
             }
             catch (Exception ex)
@@ -49,51 +51,22 @@ namespace VNC_Client
             }
         }
 
-        public async Task Start(string IP, int Port) // Изменили возвращаемый тип на Task
+        public async Task Start(string IP, int Port)
         {
             try
             {
                 client.Connect(IP, Port);
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            await Task.Run(() =>
-            {
+            updateTokenSource = new CancellationTokenSource();
+            _ = Task.Run(() => UpdateLoop(IP, Port, updateTokenSource.Token));
 
-                do
-                {
-                    try
-                    {
-                        client.UpdateFrame();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    BitmapImage receivedImage = client.GetImage;
-
-                    Application.Current.Dispatcher.Invoke(
-                      DispatcherPriority.Background,
-                      new Action(() =>
-                      this.ImagePage.Source = CloneBitmapImage(receivedImage)
-                      ));
-
-                    //Task.Delay(TimeSpan.FromMilliseconds(100)); // Ожидаем задержку
-
-                    Thread.Sleep(TimeSpan.FromMilliseconds(100));
-
-                } while (_disposed == 0 && IP == client.IP && Port == client.Port);
-
-                Console.WriteLine();
-
-            });
-
-            return;
+            await Task.CompletedTask;
 
             do
             {
@@ -150,6 +123,34 @@ namespace VNC_Client
             }
 
             return clone;
+        }
+
+        private async Task UpdateLoop(string ip, int port, CancellationToken token)
+        {
+            while (_disposed == 0 && ip == client.IP && port == client.Port && !token.IsCancellationRequested)
+            {
+                try
+                {
+                    client.UpdateFrame();
+                    BitmapImage receivedImage = client.GetImage;
+                    BitmapImage clonedImage = CloneBitmapImage(receivedImage);
+                    await Dispatcher.InvokeAsync(() => ImagePage.Source = clonedImage, DispatcherPriority.Background, token);
+                }
+                catch (Exception ex)
+                {
+                    await Dispatcher.InvokeAsync(() => MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error));
+                    break;
+                }
+
+                try
+                {
+                    await Task.Delay(100, token);
+                }
+                catch (TaskCanceledException)
+                {
+                    break;
+                }
+            }
         }
 
         private void ConnectButton_Click(object sender, RoutedEventArgs e)
@@ -212,9 +213,17 @@ namespace VNC_Client
         {
             bool leftbuttonDown = e.LeftButton == MouseButtonState.Pressed;
             bool rightbuttonDown = e.RightButton == MouseButtonState.Pressed;
+            bool middleButtonDown = e.MiddleButton == MouseButtonState.Pressed;
+            bool xButton1Down = e.XButton1 == MouseButtonState.Pressed;
+            bool xButton2Down = e.XButton2 == MouseButtonState.Pressed;
 
-            client.SendMouseButtonParamentries(leftbuttonDown, rightbuttonDown);
-        } 
+            client.SendMouseButtonParamentries(leftbuttonDown, rightbuttonDown, middleButtonDown, xButton1Down, xButton2Down);
+        }
+
+        private void ImagePage_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            client.SendMouseWheelParamentries(e.Delta);
+        }
     }
 
 }

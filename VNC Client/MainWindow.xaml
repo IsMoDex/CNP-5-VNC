@@ -19,7 +19,11 @@
         </StackPanel>
 
         <Border Grid.Row="1" Margin="10" BorderBrush="Gray" BorderThickness="1">
-            <Image x:Name="ImagePage" Stretch="Uniform" MouseMove="ImagePage_MouseMove" MouseDown="ImagePage_MouseDown" />
+            <Image x:Name="ImagePage" Stretch="Uniform"
+                   MouseMove="ImagePage_MouseMove"
+                   MouseDown="ImagePage_MouseDown"
+                   MouseUp="ImagePage_MouseUp"
+                   MouseWheel="ImagePage_MouseWheel"/>
         </Border>
 
     </Grid>

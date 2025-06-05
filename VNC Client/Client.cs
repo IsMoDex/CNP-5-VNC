@@ -92,8 +92,14 @@ namespace VNC_Client
 
                         case "MouseEventButtonUpdateRequest":
                             value = StackRequests[1];
-                            StackRequests.RemoveAt(1); 
+                            StackRequests.RemoveAt(1);
                             SendMouseButtonParamentries_Request(value);
+                            break;
+
+                        case "MouseEventWheelUpdateRequest":
+                            value = StackRequests[1];
+                            StackRequests.RemoveAt(1);
+                            SendMouseWheelParamentries_Request(value);
                             break;
 
                         default: return;
@@ -259,9 +265,9 @@ namespace VNC_Client
                 throw new ArgumentException("Ожидаемый ответ от сервера не получен!");
         }
 
-        public void SendMouseButtonParamentries(bool leftButtonDown, bool rightButtonDown)
+        public void SendMouseButtonParamentries(bool leftButtonDown, bool rightButtonDown, bool middleButtonDown, bool xButton1Down, bool xButton2Down)
         {
-            string message = $"{leftButtonDown},{rightButtonDown}";
+            string message = $"{leftButtonDown},{rightButtonDown},{middleButtonDown},{xButton1Down},{xButton2Down}";
 
             AddInStackRequest("MouseEventButtonUpdateRequest");
             AddInStackRequest(message);
@@ -271,6 +277,21 @@ namespace VNC_Client
         {
             // Отправка сообщения на сервер
             SendMessageToServer("MouseEventButtonUpdateRequest"); ///Request
+            SendMessageToServer(message);
+
+            if (GetMessageForServer(150) != "yes")
+                throw new ArgumentException("Ожидаемый ответ от сервера не получен!");
+        }
+
+        public void SendMouseWheelParamentries(int delta)
+        {
+            AddInStackRequest("MouseEventWheelUpdateRequest");
+            AddInStackRequest(delta.ToString());
+        }
+
+        private void SendMouseWheelParamentries_Request(string message)
+        {
+            SendMessageToServer("MouseEventWheelUpdateRequest");
             SendMessageToServer(message);
 
             if (GetMessageForServer(150) != "yes")
