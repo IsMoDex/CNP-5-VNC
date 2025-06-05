@@ -85,7 +85,7 @@ namespace VNC_Client
 
                     //Task.Delay(TimeSpan.FromMilliseconds(100)); // Ожидаем задержку
 
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    Thread.Sleep(TimeSpan.FromMilliseconds(100));
 
                 } while (_disposed == 0 && IP == client.IP && Port == client.Port);
 
@@ -156,7 +156,7 @@ namespace VNC_Client
         {
             string[] connectionData = ConnectionDataTextBox.Text.Split(':');
 
-            if(connectionData.Length > 2)
+            if (connectionData.Length != 2 || !int.TryParse(connectionData[1], out int port))
             {
                 MessageBox.Show("Неверные данные для подключения!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -164,7 +164,7 @@ namespace VNC_Client
 
             try
             {
-                Start(connectionData[0], int.Parse(connectionData[1]));
+                Start(connectionData[0], port);
             }
             catch (Exception ex) 
             {
