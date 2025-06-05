@@ -26,7 +26,7 @@ namespace VNC_Server
 
         InputSimulator simulator;
 
-        public Server() : this(IPAddress.Any, 12346)
+        public Server() : this(IPAddress.Any, 9000)
         {
 
         }
@@ -39,8 +39,16 @@ namespace VNC_Server
 
         public async void Start()
         {
-            listener.Start();
-            Console.WriteLine("Сервер запущен. Ожидание подключений...");
+            try
+            {
+                listener.Start();
+                Console.WriteLine("Сервер запущен. Ожидание подключений...");
+            }
+            catch (SocketException ex)
+            {
+                Console.WriteLine("Не удалось запустить сервер: " + ex.Message);
+                return;
+            }
 
             await Task.Run(() =>
             {
@@ -57,8 +65,8 @@ namespace VNC_Server
                     }
                     catch (SocketException ex)
                     {
-                        Console.WriteLine(ex.ToString());
-                        return;
+                        Console.WriteLine("Ошибка подключения клиента: " + ex.Message);
+                        continue;
                     }
 
                     //// Получаем изображение
