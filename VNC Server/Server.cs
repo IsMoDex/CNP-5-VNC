@@ -228,8 +228,8 @@ namespace VNC_Server
 
             // Разбор сообщения
             string[] parts = message.Split(',');
-            int mouseX = Convert.ToInt32($"{parts[0]}");
-            int mouseY = Convert.ToInt32($"{parts[2]}");
+            int mouseX = Convert.ToInt32(parts[0]);
+            int mouseY = Convert.ToInt32(parts[1]);
 
             MouseOperator.SetCursorPos(mouseX, mouseY);
         }
